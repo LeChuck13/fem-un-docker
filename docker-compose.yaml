@@ -1,4 +1,4 @@
-version: '3.3'
+version: '3.7'
 
 services:
   db:
@@ -9,10 +9,10 @@ services:
     networks:
       - backend
     environment:
-      MYSQL_ROOT_PASSWORD: someone
-      MYSQL_DATABASE: mysql_db
-      MYSQL_USERNAME: wordpress
-      MYSQL_USER_PASSWORD: elquesigui
+      MYSQL_ROOT_PASSWORD: somewordpress
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
 
   wordpress:
     volumes:
@@ -20,20 +20,27 @@ services:
     depends_on:
       - db
     image: lechuck13/fem-un-docker
-    ports:
-      - "8000:80"
-    restart: always
     networks:
       - backend
-      - frontend
+      - proxy
+    restart: always  
     environment:
       WORDPRESS_DB_HOST: db:3306
-      WORDPRESS_DB_USER: wordpressUSER
-      WORDPRESS_DB_PASSWORD: wordpressPWD
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
       WORDPRESS_DB_NAME: wordpress
+    deploy:
+      labels:
+        traefik.port: 80
+        traefik.frontend.rule: "Host:bloc.192.168.1.42.nip.io"
+        traefik.docker.network: "proxy"
+
 volumes:
   db_data: {}
   wp_data: {}
+
 networks:
-  backend: {}
-  frontend: {}
+  backend:
+    driver: overlay
+  proxy:
+    external: true
